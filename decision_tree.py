@@ -49,3 +49,41 @@ class Boolean(Decision):
 
     def __init__(self, attr,yesNode,noNode):
         super(Boolean, self).__init__(attr,{True: yesNode, False: noNode})
+
+class Less(Boolean):
+    """ Abstract range decision node implementation,extending Boolean node
+    """
+
+    def __init__(self, attr,yesNode,noNode,max):
+        #super(Less, self).__init__(attr,{True: yesNode, False: noNode})
+        super().__init__(attr,yesNode,noNode)
+        self.maxValue = max
+
+    def value(self,info):
+        return info[self._attribute] < self.maxValue
+    
+
+class Greater(Boolean):
+    """ Abstract range decision node implementation,extending Boolean node
+    """
+
+    def __init__(self, attr,yesNode,noNode,minimum):
+        #super(Greater, self).__init__(attr,{True: yesNode, False: noNode})
+        super().__init__(attr,yesNode,noNode)
+        self.minValue = minimum
+
+    def value(self,info):
+        return info[self._attribute] > self.minValue
+
+class MinMax(Boolean):
+    """ Abstract range decision node implementation,extending Boolean node
+    """
+
+    def __init__(self, attr,yesNode,noNode,minimum, maximum):
+        #super(MinMax, self).__init__(attr,{True: yesNode, False: noNode})
+        super().__init__(attr,yesNode,noNode)
+        self.minValue = min
+        self.maxValue = max
+
+    def value(self,info):
+        return self.maxValue >= info[self._attribute] >= self.minValue

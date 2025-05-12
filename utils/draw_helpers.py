@@ -30,9 +30,6 @@ def draw(win, images, player_car, computer_car, game_info):
     computer_car.draw(win)
     pygame.display.update()
 
-import pygame
-
-
 def scale_image(img, factor):
     size = round(img.get_width() * factor), round(img.get_height() * factor)
     return pygame.transform.scale(img, size)
