@@ -27,7 +27,9 @@ def draw(win, images, player_car, computer_car, game_info):
     win.blit(font.render(f'Vel {vel_text} px/s', 1, (255, 255, 255)), (10, win.get_height()-50))
 
     player_car.draw(win)
-    computer_car.draw(win)
+    if computer_car:
+        computer_car.draw(win)
+
     pygame.display.update()
 
 def scale_image(img, factor):
