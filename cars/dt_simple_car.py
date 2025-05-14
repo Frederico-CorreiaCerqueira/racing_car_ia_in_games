@@ -4,7 +4,7 @@ import math
 import numpy
 import pygame
 
-from decision_tree import Action, Boolean
+from decision_tree.decision_tree import Action,Boolean
 from .abstract_car import AbstractCar
 from settings import CAR_SIZE, GREEN_CAR, HEIGHT, RED, TRACK_MASK, WIDTH, YELLOW
 
