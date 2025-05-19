@@ -38,7 +38,7 @@ class DTSimpleCar(AbstractCar):
     def step(self):
         self.update_sensors()
         valores=dict()
-        for i in range(4):  # oiderua ser len(self.sensors) rm vez de 4
+        for i in range(4):  
             valores[self.SENSOR_NAMES[i]+"?"]=self.sensors[i][1] in (RED, YELLOW)
         # aqui teremos que devolver o dicionário com os nomes
         action=(self.DT).decide(valores)

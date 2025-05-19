@@ -1,6 +1,7 @@
 import pygame
 import sys
 from cars.dt_simple_car import DTSimpleCar
+from cars.dt_trained_car import DecisionTreeTrainedCar
 from settings import *
 from cars.player_car import PlayerCar
 from cars.computer_car import ComputerCar
@@ -12,6 +13,7 @@ from utils.draw_helpers import draw, blit_text_center
 
 def main():
     player_car = PlayerCar(4, 4)
+    #computer_car = DecisionTreeTrainedCar(4, 4)
     computer_car = DTSimpleCar(4, 4)
     game_info = GameInfo()
     run = True

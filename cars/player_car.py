@@ -3,6 +3,8 @@ import math
 import pygame
 from .abstract_car import MAX_RADAR_DISTANCE, RADAR_ANGLES, AbstractCar
 from settings import HEIGHT, RED_CAR, TRACK_MASK, WIDTH
+import os
+import csv
 
 class PlayerCar(AbstractCar):
     IMG = RED_CAR
@@ -19,8 +21,8 @@ class PlayerCar(AbstractCar):
     def draw(self, win):
         super().draw(win)
         distances = self.get_radar_distances()
-        print("Radar readings:", distances)
-        self.draw_radar_lines(win)
+        
+        #self.draw_radar_lines(win)
 
         """
         for radar_angle in RADAR_ANGLES:
@@ -42,3 +44,12 @@ class PlayerCar(AbstractCar):
             pygame.draw.line(win, (255, 0, 0), (self.x, self.y), (end_x, end_y), 2)
             pygame.draw.circle(win, (0, 255, 0), (end_x, end_y), 4)"""
 
+    def save_data(self, action):
+        print("Action:", action)
+        distances = self.get_radar_distances()
+        row = distances + [action]
+
+        os.makedirs("data", exist_ok=True)
+        with open("data/dataset.csv", mode="a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(row)
