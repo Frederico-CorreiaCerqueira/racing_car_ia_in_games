@@ -2,11 +2,14 @@ import joblib
 import math
 import numpy
 import pygame
-import pickle
+import pandas as pd
 
 from decision_tree.decision_tree import Action, Boolean
-from .abstract_car import AbstractCar, MAX_RADAR_DISTANCE, RADAR_ANGLES
-from settings import CAR_SIZE, GREEN_CAR, HEIGHT, RED, TRACK_MASK, WIDTH, YELLOW
+from cars.abstract_car import AbstractCar, MAX_RADAR_DISTANCE, RADAR_ANGLES
+from settings import (
+    CAR_SIZE, GREEN_CAR, HEIGHT, RED, TRACK_MASK, WIDTH, YELLOW,
+    images, WIN, FPS
+)
 
 
 class DecisionTreeTrainedCar(AbstractCar):
@@ -14,11 +17,10 @@ class DecisionTreeTrainedCar(AbstractCar):
     START_POS = (150, 200)
     SENSOR_NAMES = ['left_far', 'left', 'center', 'right', 'right_far']
 
-    # Corrigido: posições relativas dos sensores com base nos ângulos e distância máxima
     SENSOR_POS = [
         (
-            MAX_RADAR_DISTANCE * math.sin(math.radians(angle)),  # eixo x (horizontal)
-            -MAX_RADAR_DISTANCE * math.cos(math.radians(angle))  # eixo y (vertical)
+            MAX_RADAR_DISTANCE * math.sin(math.radians(angle)),
+            -MAX_RADAR_DISTANCE * math.cos(math.radians(angle))
         )
         for angle in RADAR_ANGLES
     ]
@@ -30,11 +32,30 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def step(self):
         self.update_sensors()
-        print("Esperadas pelo modelo:", self.DT.feature_names_in_)
-        # Exemplo de construção do vetor de entrada para o modelo:
-        valores = {self.SENSOR_NAMES[i] + "?": self.sensors[i][1] in (RED, YELLOW) for i in range(len(self.sensors))}
-        action = self.DT.predict([valores])[0]
-        getattr(self, action)()
+        valores = {
+            self.SENSOR_NAMES[i] + "?": self.sensors[i][1] in (RED, YELLOW)
+            for i in range(len(self.sensors))
+        }
+
+        try:
+            df = pd.DataFrame([valores], columns=self.DT.feature_names_in_)
+        except AttributeError:
+            df = pd.DataFrame([valores])  # fallback
+
+        action = self.DT.predict(df)[0]
+
+        action_map = {
+            "w": "accelerate",
+            "a": "rotLeft",
+            "d": "rotRight",
+            "s": "brake"
+        }
+        action_fn = action_map.get(action, action)
+
+        if hasattr(self, action_fn):
+            getattr(self, action_fn)()
+        else:
+            print(f"Ação inválida recebida do modelo: {action}")
 
     def next_level(self, level):
         self.reset()
@@ -67,7 +88,6 @@ class DecisionTreeTrainedCar(AbstractCar):
             color = TRACK_MASK.get_at((sx, sy)) if 0 <= sx < WIDTH and 0 <= sy < HEIGHT else None
             self.sensors.append(((sx, sy), color))
 
-    # Ações
     def rotLeft(self):
         self.rotate(True, False)
 
@@ -79,3 +99,29 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def brake(self):
         self.move_backwards()
+
+
+
+if __name__ == "__main__":
+    pygame.init()
+    pygame.display.set_caption("Decision Tree Trained Car")
+    clock = pygame.time.Clock()
+
+    car = DecisionTreeTrainedCar(max_vel=3, rotation_vel=3)
+
+    running = True
+    while running:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        for img, pos in images:
+            WIN.blit(img, pos)
+
+        car.step()
+        car.draw(WIN)
+        pygame.display.update()
+
+    pygame.quit()
