@@ -17,6 +17,7 @@ def main():
     player_car = PlayerCar(4, 4)
     computer_car = DecisionTreeTrainedCar(4, 4)
     #computer_car = DTSimpleCar(4, 4)
+
     game_info = GameInfo()
     run = True
     clock = pygame.time.Clock()
