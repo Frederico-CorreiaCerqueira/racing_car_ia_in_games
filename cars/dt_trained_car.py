@@ -4,10 +4,10 @@ import numpy
 import pygame
 import pandas as pd
 
-from cars.abstract_car import AbstractCar, MAX_RADAR_DISTANCE, RADAR_ANGLES
+from cars.abstract_car import AbstractCar, RADAR_ANGLES, MAX_RADAR_DISTANCE
 from settings import (
-    CAR_SIZE, GREEN_CAR, HEIGHT, RED, TRACK_MASK, WIDTH, YELLOW,
-    images, WIN, FPS
+    CAR_SIZE, GREEN_CAR, WIDTH, HEIGHT,
+    images, WIN, FPS, TRACK_MASK
 )
 
 
@@ -15,88 +15,59 @@ class DecisionTreeTrainedCar(AbstractCar):
     IMG = GREEN_CAR
     START_POS = (150, 200)
 
-    SENSOR_POS = [
-        (
-            MAX_RADAR_DISTANCE * math.sin(math.radians(angle)),
-            -MAX_RADAR_DISTANCE * math.cos(math.radians(angle))
-        )
-        for angle in RADAR_ANGLES
-    ]
-
     def __init__(self, max_vel, rotation_vel, tree_path="model/classifier.joblib"):
         super().__init__(max_vel, rotation_vel)
         self.DT = joblib.load(tree_path)
-        self.update_sensors()
 
     def step(self):
-        self.update_sensors()
+        sensor_values = self.get_radar_distances()
 
-        # Extrai os valores brutos de cor nos sensores (RED/YELLOW = obstáculo)
-        valores = [
-            self.sensors[i][1] in (RED, YELLOW)
-            for i in range(len(self.sensors))
-        ]
+      # print(f"Sensors: {sensor_values}")
 
-        # Cria DataFrame compatível com as colunas do treino (s1 a s5)
-        df = pd.DataFrame([valores], columns=[f"s{i+1}" for i in range(5)])
+        df = pd.DataFrame([sensor_values], columns=["s1", "s2", "s3", "s4", "s5"])
 
-        # Prediz a ação
-        action = self.DT.predict(df)[0]
+        predicted_key = self.DT.predict(df)[0]
+     #  print(f"Predicted action: {predicted_key}")
 
-        # Mapeia ação para método correspondente
         action_map = {
             "w": self.accelerate,
             "a": self.rotLeft,
             "d": self.rotRight,
-            "s": self.brake,
-            "accelerate": self.accelerate,
-            "rotLeft": self.rotLeft,
-            "rotRight": self.rotRight,
-            "brake": self.brake
+            "s": self.brake
         }
 
-        act_fn = action_map.get(action)
-        if act_fn:
-            act_fn()
+        if predicted_key in action_map:
+            action_map[predicted_key]()
         else:
-            print(f"Ação inválida do modelo: {action}")
+            print(f"Ação inválida prevista: {predicted_key}")
 
     def next_level(self, level):
         self.reset()
         self.vel = self.max_vel + (level - 1) * 0.02
 
-    def draw_sensors(self, win):
-        x, y = int(self.x + CAR_SIZE[0]), int(self.y + CAR_SIZE[1])
-        alfa = math.radians(self.angle)
-        mrot = numpy.array([
-            [math.cos(alfa), -math.sin(alfa)],
-            [math.sin(alfa), math.cos(alfa)]
-        ])
-        pts = numpy.array(self.SENSOR_POS)
-        npts = numpy.dot(pts, mrot)
-        for i in npts:
-            px, py = int(i[0] + x), int(i[1] + y)
-            if 0 <= px < WIDTH and 0 <= py < HEIGHT:
-                pygame.draw.circle(win, TRACK_MASK.get_at((px, py)), (px, py), 2, 2)
-
     def draw(self, win):
         super().draw(win)
-        self.draw_sensors(win)
+        self.draw_radar_lines(win)
 
-    def update_sensors(self):
-        x, y = int(self.x + CAR_SIZE[0]), int(self.y + CAR_SIZE[1])
-        alfa = math.radians(self.angle)
-        mrot = numpy.array([
-            [math.cos(alfa), -math.sin(alfa)],
-            [math.sin(alfa), math.cos(alfa)]
-        ])
-        pts = numpy.array(self.SENSOR_POS)
-        npts = numpy.dot(pts, mrot)
-        self.sensors = []
-        for dx, dy in npts:
-            sx, sy = int(dx + x), int(dy + y)
-            color = TRACK_MASK.get_at((sx, sy)) if 0 <= sx < WIDTH and 0 <= sy < HEIGHT else None
-            self.sensors.append(((sx, sy), color))
+    def draw_radar_lines(self, win):
+        for radar_angle in RADAR_ANGLES:
+            angle = math.radians(self.angle + radar_angle)
+            dist = 0
+            for d in range(0, MAX_RADAR_DISTANCE, 2):
+                x = int(self.x + math.sin(angle) * d)
+                y = int(self.y - math.cos(angle) * d)
+
+                if 0 <= x < WIDTH and 0 <= y < HEIGHT:
+                    if TRACK_MASK.get_at((x, y)) == 0:
+                        break
+                else:
+                    break
+                dist = d
+
+            end_x = int(self.x + math.sin(angle) * dist)
+            end_y = int(self.y - math.cos(angle) * dist)
+            pygame.draw.line(win, (255, 0, 0), (self.x, self.y), (end_x, end_y), 2)
+            pygame.draw.circle(win, (0, 255, 0), (end_x, end_y), 4)
 
     def rotLeft(self):
         self.rotate(True, False)

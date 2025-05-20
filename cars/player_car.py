@@ -68,7 +68,7 @@ class PlayerCar(AbstractCar):
             pygame.draw.circle(win, (0, 255, 0), (end_x, end_y), 4)"""
 
     def save_data(self, action):
-        print("Action:", action)
+       # print("Action:", action)
         distances = self.get_radar_distances()
         row = distances + [action]
 
