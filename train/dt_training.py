@@ -7,7 +7,7 @@ import os
 
 # Carrega os dados
 col_names = ['s1', 's2', 's3', 's4', 's5', 'action']
-df = pd.read_csv("../data/dataset.csv",header=None, names=col_names)
+df = pd.read_csv("data/dataset.csv",header=None, names=col_names)
 X = df[['s1', 's2', 's3', 's4', 's5']]  # sensores
 y = df['action']                       # ações
 
@@ -21,7 +21,7 @@ clf.fit(X_train, y_train)
 # Avalia
 y_pred = clf.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
-print("Acurácia:", acc)
+print("Accuracy:", acc)
 
 # Salva o modelo
 os.makedirs("model", exist_ok=True)

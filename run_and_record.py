@@ -11,7 +11,7 @@ from data.collect_data import save_data
 
 def main():
     player_car = PlayerCar(4, 4)
-    ai_car = SklearnCar(4, 4) if os.path.exists("model.pkl") else None
+    ai_car = SklearnCar(4, 4) if os.path.exists("classifier.joblib") else None
     game_info = GameInfo()
     run = True
     clock = pygame.time.Clock()

@@ -4,7 +4,6 @@ import numpy
 import pygame
 import pandas as pd
 
-from decision_tree.decision_tree import Action, Boolean
 from cars.abstract_car import AbstractCar, MAX_RADAR_DISTANCE, RADAR_ANGLES
 from settings import (
     CAR_SIZE, GREEN_CAR, HEIGHT, RED, TRACK_MASK, WIDTH, YELLOW,
@@ -15,7 +14,6 @@ from settings import (
 class DecisionTreeTrainedCar(AbstractCar):
     IMG = GREEN_CAR
     START_POS = (150, 200)
-    SENSOR_NAMES = ['left_far', 'left', 'center', 'right', 'right_far']
 
     SENSOR_POS = [
         (
@@ -25,37 +23,43 @@ class DecisionTreeTrainedCar(AbstractCar):
         for angle in RADAR_ANGLES
     ]
 
-    def __init__(self, max_vel, rotation_vel, tree_path="./model/classifier.joblib"):
+    def __init__(self, max_vel, rotation_vel, tree_path="model/classifier.joblib"):
         super().__init__(max_vel, rotation_vel)
         self.DT = joblib.load(tree_path)
         self.update_sensors()
 
     def step(self):
         self.update_sensors()
-        valores = {
-            self.SENSOR_NAMES[i] + "?": self.sensors[i][1] in (RED, YELLOW)
+
+        # Extrai os valores brutos de cor nos sensores (RED/YELLOW = obstáculo)
+        valores = [
+            self.sensors[i][1] in (RED, YELLOW)
             for i in range(len(self.sensors))
-        }
+        ]
 
-        try:
-            df = pd.DataFrame([valores], columns=self.DT.feature_names_in_)
-        except AttributeError:
-            df = pd.DataFrame([valores])  # fallback
+        # Cria DataFrame compatível com as colunas do treino (s1 a s5)
+        df = pd.DataFrame([valores], columns=[f"s{i+1}" for i in range(5)])
 
+        # Prediz a ação
         action = self.DT.predict(df)[0]
 
+        # Mapeia ação para método correspondente
         action_map = {
-            "w": "accelerate",
-            "a": "rotLeft",
-            "d": "rotRight",
-            "s": "brake"
+            "w": self.accelerate,
+            "a": self.rotLeft,
+            "d": self.rotRight,
+            "s": self.brake,
+            "accelerate": self.accelerate,
+            "rotLeft": self.rotLeft,
+            "rotRight": self.rotRight,
+            "brake": self.brake
         }
-        action_fn = action_map.get(action, action)
 
-        if hasattr(self, action_fn):
-            getattr(self, action_fn)()
+        act_fn = action_map.get(action)
+        if act_fn:
+            act_fn()
         else:
-            print(f"Ação inválida recebida do modelo: {action}")
+            print(f"Ação inválida do modelo: {action}")
 
     def next_level(self, level):
         self.reset()
@@ -64,7 +68,10 @@ class DecisionTreeTrainedCar(AbstractCar):
     def draw_sensors(self, win):
         x, y = int(self.x + CAR_SIZE[0]), int(self.y + CAR_SIZE[1])
         alfa = math.radians(self.angle)
-        mrot = numpy.array([[math.cos(alfa), -math.sin(alfa)], [math.sin(alfa), math.cos(alfa)]])
+        mrot = numpy.array([
+            [math.cos(alfa), -math.sin(alfa)],
+            [math.sin(alfa), math.cos(alfa)]
+        ])
         pts = numpy.array(self.SENSOR_POS)
         npts = numpy.dot(pts, mrot)
         for i in npts:
@@ -79,7 +86,10 @@ class DecisionTreeTrainedCar(AbstractCar):
     def update_sensors(self):
         x, y = int(self.x + CAR_SIZE[0]), int(self.y + CAR_SIZE[1])
         alfa = math.radians(self.angle)
-        mrot = numpy.array([[math.cos(alfa), -math.sin(alfa)], [math.sin(alfa), math.cos(alfa)]])
+        mrot = numpy.array([
+            [math.cos(alfa), -math.sin(alfa)],
+            [math.sin(alfa), math.cos(alfa)]
+        ])
         pts = numpy.array(self.SENSOR_POS)
         npts = numpy.dot(pts, mrot)
         self.sensors = []
@@ -99,7 +109,6 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def brake(self):
         self.move_backwards()
-
 
 
 if __name__ == "__main__":
