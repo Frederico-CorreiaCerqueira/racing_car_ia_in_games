@@ -2,7 +2,7 @@ import pygame
 import sys
 import pickle
 
-#from cars.dt_simple_car import DTSimpleCar
+from cars.dt_simple_car import DTSimpleCar
 from cars.dt_trained_car import DecisionTreeTrainedCar
 from cars.player_car import PlayerCar
 from settings import *
@@ -73,11 +73,11 @@ def main():
             player_trajectory.append((player_car.x, player_car.y))
             ai_trajectory.append((computer_car.x, computer_car.y))
 
-            # Verifica colisões
+            
             if handle_collision(player_car, computer_car, game_info):
                 draw(WIN, images, player_car, computer_car, game_info)
 
-            # Fim do jogo
+            
             if game_info.game_finished():
                 blit_text_center(WIN, MAIN_FONT, "YOU WON!")
                 pygame.time.wait(5000)

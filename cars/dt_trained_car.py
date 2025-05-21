@@ -4,11 +4,8 @@ import numpy
 import pygame
 import pandas as pd
 
-from cars.abstract_car import AbstractCar
-from settings import (
-    GREEN_CAR, TRACK_MASK, TRACK_BORDER_MASK,
-    WIDTH, HEIGHT, CAR_SIZE, FPS, images, WIN
-)
+from .abstract_car import AbstractCar
+from settings import CAR_SIZE, GREEN_CAR, HEIGHT, TRACK_MASK, WIDTH, FPS, TRACK
 
 RADAR_ANGLES = [-60, -30, 0, 30, 60]
 MAX_RADAR_DISTANCE = 150
@@ -19,18 +16,28 @@ class DecisionTreeTrainedCar(AbstractCar):
     IMG = GREEN_CAR
     START_POS = (150, 200)
 
-    def __init__(self, max_vel, rotation_vel, tree_path="model/classifier.joblib"):
+    def __init__(self, max_vel, rotation_vel, model_path="model/classifier.joblib"):
         super().__init__(max_vel, rotation_vel)
-        self.DT = joblib.load(tree_path)
+        self.DT = joblib.load(model_path)
+        
+        self.center_x = self.x + self.IMG.get_width() // 2
+        self.center_y = self.y + self.IMG.get_height() // 2
         self.update_sensors()
+
+    def move(self):
+        super().move()
+        
+        self.center_x = self.x + self.IMG.get_width() // 2
+        self.center_y = self.y + self.IMG.get_height() // 2
 
     def step(self):
         self.update_sensors()
         sensor_values = [dist for (_, dist) in self.sensors]
-
         df = pd.DataFrame([sensor_values], columns=SENSOR_NAMES)
+
         predicted_key = self.DT.predict(df)[0]
-       # print(f"Sensors: {sensor_values} → Predicted Action: {predicted_key}")
+
+       # print(f"Radares: {sensor_values} → Ação prevista: {predicted_key}")
 
         action_map = {
             "w": self.accelerate,
@@ -42,81 +49,71 @@ class DecisionTreeTrainedCar(AbstractCar):
         if predicted_key in action_map:
             action_map[predicted_key]()
         else:
-            print(f"Ação inválida prevista: {predicted_key}")
+            print("Ação inválida prevista:", predicted_key)
+
 
     def update_sensors(self):
-        x, y = int(self.x + CAR_SIZE[0]), int(self.y + CAR_SIZE[1])
         self.sensors = []
 
         for angle_offset in RADAR_ANGLES:
             angle = math.radians(self.angle + angle_offset)
             dist = 0
+            end_x, end_y = self.center_x, self.center_y  # Inicia no centro do carro
+            
             for d in range(0, MAX_RADAR_DISTANCE, 2):
-                sx = int(x + math.sin(angle) * d)
-                sy = int(y - math.cos(angle) * d)
+                dx = int(self.center_x + math.sin(angle) * d)
+                dy = int(self.center_y - math.cos(angle) * d)
 
-                if 0 <= sx < WIDTH and 0 <= sy < HEIGHT:
-                    if TRACK_MASK.get_at((sx, sy)) == 0:
+                if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
+                    if TRACK_MASK.get_at((dx, dy)) == 0:
                         break
                 else:
                     break
                 dist = d
+                end_x, end_y = dx, dy
 
-            self.sensors.append(((sx, sy), dist))
+            self.sensors.append(((end_x, end_y), dist))
 
     def draw_sensors(self, win):
+        
         for (pos, dist) in self.sensors:
-            if 0 <= pos[0] < WIDTH and 0 <= pos[1] < HEIGHT:
-                pygame.draw.circle(win, (0, 255, 0), (int(pos[0]), int(pos[1])), 3, 1)
+            end_x, end_y = pos
+            pygame.draw.line(win, (255, 0, 0), (int(self.center_x), int(self.center_y)), (end_x, end_y), 2)
+        
+        
+        for (pos, dist) in self.sensors:
+            dx, dy = int(pos[0]), int(pos[1])
+
+            if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
+                r, g, b = TRACK.get_at((dx, dy))[:3]
+                is_grass = g > r + 20 and g > b + 20 and g > 100
+                is_border = r > 100 and g < 100 and b < 100
+                is_off_track = is_grass or is_border
+            else:
+                is_off_track = True
+
+            color = (255, 0, 0) if is_off_track else (0, 255, 0)
+            pygame.draw.circle(win, color, (dx, dy), 4)
 
     def draw(self, win):
         super().draw(win)
-        self.draw_sensors(win)
+     #   self.draw_sensors(win)
 
     def next_level(self, level):
         self.reset()
         self.vel = self.max_vel + (level - 1) * 0.02
+       
+        self.center_x = self.x + self.IMG.get_width() // 2
+        self.center_y = self.y + self.IMG.get_height() // 2
 
     def rotLeft(self):
-        self.rotate(True, False)
+        self.rotate(left=True)
 
     def rotRight(self):
-        self.rotate(False, True)
+        self.rotate(right=True)
 
     def accelerate(self):
         self.move_forward()
 
     def brake(self):
         self.move_backwards()
-
-
-if __name__ == "__main__":
-    pygame.init()
-    pygame.display.set_caption("Decision Tree Trained Car")
-    clock = pygame.time.Clock()
-
-    car = DecisionTreeTrainedCar(max_vel=3, rotation_vel=3)
-
-    running = True
-    while running:
-        clock.tick(FPS)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        for img, pos in images:
-            WIN.blit(img, pos)
-
-        car.step()
-
-        if car.collide(TRACK_BORDER_MASK):
-            print("COLISÃO COM A BORDA!")
-            car.bounce()
-        else:
-            print("Sem colisão")
-
-        car.draw(WIN)
-        pygame.display.update()
-
-    pygame.quit()
