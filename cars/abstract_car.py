@@ -6,8 +6,7 @@ from utils.draw_helpers import blit_rotate_center
 import random
 
 RADAR_ANGLES = [-120, -60, 0, 60, 120]
-MAX_RADAR_DISTANCE = 300  # ou outro valor a ajustar
-
+MAX_RADAR_DISTANCE = 300
 
 class AbstractCar:
     def __init__(self, max_vel, rotation_vel):
@@ -28,10 +27,11 @@ class AbstractCar:
                 y = int(self.y - math.cos(angle) * dist)
 
                 if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                    if TRACK_MASK.get_at((x, y)) == 0: 
+                    r, g, b, *_ = TRACK_MASK.get_at((x, y))
+                    if (r, g, b) != (255, 255, 255):  # Fora da pista → parar
                         break
                 else:
-                    break 
+                    break
             distances.append(dist)
         return distances
 
