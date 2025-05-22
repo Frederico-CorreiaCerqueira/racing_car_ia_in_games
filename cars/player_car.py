@@ -4,7 +4,7 @@ import os
 import csv
 
 from .abstract_car import MAX_RADAR_DISTANCE, RADAR_ANGLES, AbstractCar
-from settings import RED_CAR, TRACK_MASK, WIDTH, HEIGHT, TRACK
+from settings import RED_CAR, TRACK_MASK, TRACK_BORDER_MASK, TRACK, WIDTH, HEIGHT
 
 
 class PlayerCar(AbstractCar):
@@ -13,13 +13,11 @@ class PlayerCar(AbstractCar):
 
     def __init__(self, max_vel, rotation_vel):
         super().__init__(max_vel, rotation_vel)
-        # Centro do carro
         self.center_x = self.x + self.IMG.get_width() // 2
         self.center_y = self.y + self.IMG.get_height() // 2
 
     def move(self):
         super().move()
-        # Atualiza o centro do carro após o movimento
         self.center_x = self.x + self.IMG.get_width() // 2
         self.center_y = self.y + self.IMG.get_height() // 2
 
@@ -35,14 +33,15 @@ class PlayerCar(AbstractCar):
         for radar_angle in RADAR_ANGLES:
             angle = math.radians(self.angle + radar_angle)
             dist = 0
-            end_x, end_y = self.center_x, self.center_y  # Inicia no centro do carro
-            
+            end_x, end_y = self.center_x, self.center_y
+
             for d in range(0, MAX_RADAR_DISTANCE, 2):
                 dx = int(self.center_x + math.sin(angle) * d)
                 dy = int(self.center_y - math.cos(angle) * d)
 
                 if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
-                    if TRACK_MASK.get_at((dx, dy)) == 0:
+                   
+                    if TRACK_BORDER_MASK.get_at((dx, dy)) != 0:
                         break
                 else:
                     break
@@ -50,8 +49,7 @@ class PlayerCar(AbstractCar):
                 end_x, end_y = dx, dy
 
             pygame.draw.line(win, (255, 0, 0), (int(self.center_x), int(self.center_y)), (end_x, end_y), 2)
-            
-            # Verifica se está fora da pista
+
             if 0 <= end_x < WIDTH and 0 <= end_y < HEIGHT:
                 r, g, b = TRACK.get_at((end_x, end_y))[:3]
                 is_grass = g > r + 20 and g > b + 20 and g > 100
@@ -68,32 +66,44 @@ class PlayerCar(AbstractCar):
         for radar_angle in RADAR_ANGLES:
             angle = math.radians(self.angle + radar_angle)
             dist = 0
-            
+
             for d in range(0, MAX_RADAR_DISTANCE, 2):
                 dx = int(self.center_x + math.sin(angle) * d)
                 dy = int(self.center_y - math.cos(angle) * d)
 
                 if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
-                    if TRACK_MASK.get_at((dx, dy)) == 0:
+                    # Verificação baseada no contorno da pista (berma)
+                    if TRACK_BORDER_MASK.get_at((dx, dy)) != 0:
                         break
                 else:
                     break
                 dist = d
 
-            distances.append(dist)
+            distances.append(float(dist))
         return distances
 
     def draw(self, win):
         super().draw(win)
-    #    self.draw_radar_lines(win)
+     #   self.draw_radar_lines(win)
 
     def save_data(self, action):
+        # Contador de frames entre gravações
+        if not hasattr(self, "frame_count"):
+            self.frame_count = 0
+
+        self.frame_count += 1
+
+        # Só grava a cada 5 frames
+        if self.frame_count % 5 != 0:
+            return
+
         distances = self.get_radar_distances()
-    #    print(f"Sensores: {distances} → Ação: {action}")
+
+      #  print(f"Sensors: {distances} → Action: {action}")
 
         row = distances + [action]
-
         os.makedirs("data", exist_ok=True)
         with open("data/dataset.csv", mode="a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(row)
+
