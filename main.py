@@ -2,6 +2,8 @@ import pygame
 import sys
 import pickle
 import random
+import csv
+import os
 
 from cars.dt_simple_car import DTSimpleCar
 from cars.dt_trained_car import DecisionTreeTrainedCar
@@ -11,13 +13,31 @@ from game.game_info import GameInfo
 from game.collision import handle_collision
 from utils.draw_helpers import draw, blit_text_center
 
+level_data_start_index = 0
+
+def count_dataset_rows():
+    try:
+        with open("data/dataset.csv", "r") as f:
+            return sum(1 for _ in f)
+    except FileNotFoundError:
+        return 0
+
+def delete_last_level_data():
+    global level_data_start_index
+    try:
+        with open("data/dataset.csv", "r") as f:
+            lines = f.readlines()
+        with open("data/dataset.csv", "w") as f:
+            f.writelines(lines[:level_data_start_index])
+       # print("Dados do nível atual removidos com sucesso.")
+    except Exception as e:
+        print("Erro ao apagar dados:", e)
 
 def main():
     pygame.init()
 
     player_car = PlayerCar(4, 4)
     computer_car = DecisionTreeTrainedCar(4, 4)
-    # computer_car = DTSimpleCar(4, 4)
 
     game_info = GameInfo()
     run = True
@@ -26,21 +46,18 @@ def main():
     player_trajectory = []
     ai_trajectory = []
 
-    # Reset inicial com posição e ângulo aleatórios
     player_car.reset()
     computer_car.reset()
 
-    # Troca de posições na linha de partida
     player_start_pos = (player_car.x, player_car.y)
     computer_start_pos = (computer_car.x, computer_car.y)
     player_car.x, player_car.y = computer_start_pos
     computer_car.x, computer_car.y = player_start_pos
 
-    # Variação adicional: corrida invertida (anti-clockwise)
     reverse_race = random.choice([True, False])
     if reverse_race:
-        player_car.angle += 180
-        computer_car.angle += 180
+        player_car.angle += 45
+        computer_car.angle += 45
 
     try:
         while run:
@@ -57,9 +74,10 @@ def main():
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
+                            global level_data_start_index
+                            level_data_start_index = count_dataset_rows()
                             game_info.start_level()
                         elif event.key == pygame.K_r:
-                           # print("Restart")
                             game_info.reset()
                             player_car.reset()
                             if computer_car:
@@ -71,13 +89,20 @@ def main():
                     break
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
-                      #  print("Restart")
                         game_info.reset()
                         player_car.reset()
                         if computer_car:
                             computer_car.reset()
+                    if event.key == pygame.K_k:
+                        #print("Nível ignorado com tecla K")
+                        player_car.reset()
+                        if computer_car:
+                            computer_car.reset()
+                        delete_last_level_data()
+                        game_info.next_level()
+                        if computer_car:
+                            computer_car.next_level(game_info.level)
 
-            # Controlos do jogador
             keys = pygame.key.get_pressed()
             moved = False
             if keys[pygame.K_a]:
@@ -99,7 +124,13 @@ def main():
 
             computer_car.step()
 
-            # Grava trajetórias
+            # Adiciona bounce se colidir com borda da pista
+            if player_car.collide(TRACK_BORDER_MASK, 0, 0):
+                player_car.bounce()
+
+            if computer_car and computer_car.collide(TRACK_BORDER_MASK, 0, 0):
+                computer_car.bounce()
+
             player_trajectory.append((player_car.x, player_car.y))
             ai_trajectory.append((computer_car.x, computer_car.y))
 
@@ -128,7 +159,6 @@ def main():
 
         pygame.quit()
         sys.exit()
-
 
 if __name__ == "__main__":
     main()

@@ -5,7 +5,7 @@ from settings import CAR_SIZE, WIDTH, HEIGHT, TRACK_MASK
 from utils.draw_helpers import blit_rotate_center
 import random
 
-RADAR_ANGLES = [-120, -60, 0, 60, 120]
+RADAR_ANGLES = [90, 45, -45, -90, 180]
 MAX_RADAR_DISTANCE = 300
 
 class AbstractCar:

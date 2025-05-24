@@ -8,7 +8,7 @@ from .abstract_car import AbstractCar
 from settings import CAR_SIZE, GREEN_CAR, HEIGHT, TRACK_BORDER_MASK, WIDTH, FPS, TRACK
 
 
-RADAR_ANGLES = [-120, -60, 0, 60, 120]
+RADAR_ANGLES = [90, 45, -45, -90, 180]
 MAX_RADAR_DISTANCE = 300
 SENSOR_NAMES = ['s1', 's2', 's3', 's4', 's5']
 
@@ -56,13 +56,14 @@ class DecisionTreeTrainedCar(AbstractCar):
         self.sensors = []
 
         for angle_offset in RADAR_ANGLES:
-            angle = math.radians(self.angle + angle_offset)
+            angle = math.radians(self.angle + 90 + angle_offset)
             dist = 0
             end_x, end_y = self.center_x, self.center_y
 
             for d in range(0, MAX_RADAR_DISTANCE, 2):
-                dx = int(self.center_x + math.sin(angle) * d)
-                dy = int(self.center_y - math.cos(angle) * d)
+                dx = int(self.center_x + math.cos(angle) * d)
+                dy = int(self.center_y - math.sin(angle) * d)
+
 
                 if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
                     
@@ -96,7 +97,7 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def draw(self, win):
         super().draw(win)
-      #  self.draw_sensors(win)
+     #   self.draw_sensors(win)
 
     def next_level(self, level):
         self.reset()

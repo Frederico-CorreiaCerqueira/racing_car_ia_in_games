@@ -31,16 +31,15 @@ class PlayerCar(AbstractCar):
 
     def draw_radar_lines(self, win):
         for radar_angle in RADAR_ANGLES:
-            angle = math.radians(self.angle + radar_angle)
+            angle = math.radians(self.angle + 90 + radar_angle)
             dist = 0
             end_x, end_y = self.center_x, self.center_y
 
             for d in range(0, MAX_RADAR_DISTANCE, 2):
-                dx = int(self.center_x + math.sin(angle) * d)
-                dy = int(self.center_y - math.cos(angle) * d)
+                dx = int(self.center_x + math.cos(angle) * d)
+                dy = int(self.center_y - math.sin(angle) * d)
 
                 if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
-                   
                     if TRACK_BORDER_MASK.get_at((dx, dy)) != 0:
                         break
                 else:
@@ -64,15 +63,14 @@ class PlayerCar(AbstractCar):
     def get_radar_distances(self):
         distances = []
         for radar_angle in RADAR_ANGLES:
-            angle = math.radians(self.angle + radar_angle)
+            angle = math.radians(self.angle + 90 + radar_angle)
             dist = 0
 
             for d in range(0, MAX_RADAR_DISTANCE, 2):
-                dx = int(self.center_x + math.sin(angle) * d)
-                dy = int(self.center_y - math.cos(angle) * d)
+                dx = int(self.center_x + math.cos(angle) * d)
+                dy = int(self.center_y - math.sin(angle) * d)
 
                 if 0 <= dx < WIDTH and 0 <= dy < HEIGHT:
-                    # Verificação baseada no contorno da pista (berma)
                     if TRACK_BORDER_MASK.get_at((dx, dy)) != 0:
                         break
                 else:
@@ -84,26 +82,21 @@ class PlayerCar(AbstractCar):
 
     def draw(self, win):
         super().draw(win)
-     #   self.draw_radar_lines(win)
+       # self.draw_radar_lines(win)
 
     def save_data(self, action):
-        # Contador de frames entre gravações
         if not hasattr(self, "frame_count"):
             self.frame_count = 0
 
         self.frame_count += 1
 
-        # Só grava a cada 5 frames
         if self.frame_count % 5 != 0:
             return
 
         distances = self.get_radar_distances()
-
-      #  print(f"Sensors: {distances} → Action: {action}")
 
         row = distances + [action]
         os.makedirs("data", exist_ok=True)
         with open("data/dataset.csv", mode="a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(row)
-
