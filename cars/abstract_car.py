@@ -18,7 +18,7 @@ class AbstractCar:
         self.x, self.y = self.START_POS
         self.acceleration = 0.1
 
-    def get_radar_distances(self):
+    """def get_radar_distances(self):
         distances = []
         for radar_angle in RADAR_ANGLES:
             angle = math.radians(self.angle + radar_angle)
@@ -32,6 +32,22 @@ class AbstractCar:
                         break
                 else:
                     break
+            distances.append(dist)
+        return distances"""
+    
+    def get_radar_distances(self):
+        distances = []
+        for radar_angle in RADAR_ANGLES:
+            angle = math.radians(self.angle + radar_angle)
+            for dist in range(0, MAX_RADAR_DISTANCE, 2):  # passo de 2 pixels
+                x = int(self.x + math.sin(angle) * dist)
+                y = int(self.y - math.cos(angle) * dist)
+
+                if 0 <= x < WIDTH and 0 <= y < HEIGHT:
+                    if TRACK_MASK.get_at((x, y)) == 0:  # encontrou relva (preto no mask)
+                        break
+                else:
+                    break  # fora do ecrã
             distances.append(dist)
         return distances
 
@@ -68,10 +84,13 @@ class AbstractCar:
         return poi
 
     def reset(self):
-        start_x, start_y = self.START_POS
-        self.x = start_x + random.randint(-5, 5)
-        self.y = start_y
-        self.angle = random.randint(-10, 10) 
+        #start_x, start_y = self.START_POS
+        #self.x = start_x + random.randint(-5, 5)
+        #self.y = start_y
+        #self.angle = random.randint(-10, 10) 
+        #self.vel = 0
+        self.x, self.y = self.START_POS
+        self.angle = 0
         self.vel = 0
 
     def draw(self, win):

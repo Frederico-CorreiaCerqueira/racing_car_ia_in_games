@@ -10,7 +10,7 @@ from cars.dt_trained_car import DecisionTreeTrainedCar
 from cars.player_car import PlayerCar
 from settings import *
 from game.game_info import GameInfo
-from game.collision import handle_collision
+from game.collision import handle_collision, move_player
 from utils.draw_helpers import draw, blit_text_center
 
 level_data_start_index = 0
@@ -37,7 +37,8 @@ def main():
     pygame.init()
 
     player_car = PlayerCar(4, 4)
-    computer_car = DecisionTreeTrainedCar(4, 4)
+    computer_car = DecisionTreeTrainedCar(4, 4) 
+    #computer_car = DTSimpleCar(4,4) 
 
     game_info = GameInfo()
     run = True
@@ -54,10 +55,10 @@ def main():
     player_car.x, player_car.y = computer_start_pos
     computer_car.x, computer_car.y = player_start_pos
 
-    reverse_race = random.choice([True, False])
-    if reverse_race:
-        player_car.angle += 45
-        computer_car.angle += 45
+    #reverse_race = random.choice([True, False])
+    #if reverse_race:
+    #    player_car.angle += 45
+    #    computer_car.angle += 45
 
     try:
         while run:
@@ -65,7 +66,7 @@ def main():
             draw(WIN, images, player_car, computer_car, game_info)
 
             while not game_info.started:
-                blit_text_center(WIN, MAIN_FONT, f'Press SPACE to start level {game_info.level}!')
+                blit_text_center(WIN, MAIN_FONT, f'Press any key to start level {game_info.level}!')
                 pygame.display.update()
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -73,7 +74,8 @@ def main():
                         pygame.quit()
                         sys.exit()
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
+                        game_info.start_level()
+                        """if event.key == pygame.K_SPACE:
                             global level_data_start_index
                             level_data_start_index = count_dataset_rows()
                             game_info.start_level()
@@ -81,13 +83,13 @@ def main():
                             game_info.reset()
                             player_car.reset()
                             if computer_car:
-                                computer_car.reset()
+                                computer_car.reset()"""
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
                     break
-                if event.type == pygame.KEYDOWN:
+                """if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         game_info.reset()
                         player_car.reset()
@@ -101,9 +103,9 @@ def main():
                         delete_last_level_data()
                         game_info.next_level()
                         if computer_car:
-                            computer_car.next_level(game_info.level)
+                            computer_car.next_level(game_info.level)"""
 
-            keys = pygame.key.get_pressed()
+            """keys = pygame.key.get_pressed()
             moved = False
             if keys[pygame.K_a]:
                 player_car.rotate(left=True)
@@ -120,19 +122,20 @@ def main():
                 player_car.move_backwards()
                 player_car.save_data("s")
             if not moved:
-                player_car.reduce_speed()
+                player_car.reduce_speed()"""
 
+            move_player(player_car)
             computer_car.step()
 
-            # Adiciona bounce se colidir com borda da pista
+            """# Adiciona bounce se colidir com borda da pista
             if player_car.collide(TRACK_BORDER_MASK, 0, 0):
                 player_car.bounce()
 
             if computer_car and computer_car.collide(TRACK_BORDER_MASK, 0, 0):
-                computer_car.bounce()
+                computer_car.bounce()"""
 
-            player_trajectory.append((player_car.x, player_car.y))
-            ai_trajectory.append((computer_car.x, computer_car.y))
+            #player_trajectory.append((player_car.x, player_car.y))
+            #ai_trajectory.append((computer_car.x, computer_car.y))
 
             if handle_collision(player_car, computer_car, game_info):
                 draw(WIN, images, player_car, computer_car, game_info)

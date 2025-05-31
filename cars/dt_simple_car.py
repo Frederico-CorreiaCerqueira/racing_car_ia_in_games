@@ -102,4 +102,3 @@ class DTSimpleCar(AbstractCar):
     def brake(self):
         """ control car acceleration according to its status """
         self.move_backwards()
-
