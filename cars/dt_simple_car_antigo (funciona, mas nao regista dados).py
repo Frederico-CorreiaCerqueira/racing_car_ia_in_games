@@ -1,8 +1,6 @@
 import math
 import numpy as np
 import pygame
-import csv
-import os
 
 from decision_tree.decision_tree import Action, Boolean
 from .abstract_car import AbstractCar
@@ -31,8 +29,9 @@ class DTSimpleCar(AbstractCar):
 
     def __init__(self, max_vel, rotation_vel):
         super().__init__(max_vel, rotation_vel)
-        self.frame_count = 0
         self.update_sensors()
+        #self.sensors [WHITE, WHITE, WHITE, WHITE]
+        # deveria ser feito o UPDATE_SENSORS para termos os primeiros valores
 
     def step(self):
         self.update_sensors()
@@ -40,32 +39,10 @@ class DTSimpleCar(AbstractCar):
         for i in range(4):
             obstacle = self.sensors[i][1]
             valores[self.SENSOR_NAMES[i] + "?"] = obstacle
+        # aqui teremos que devolver o dicionário com os nomes
         action = self.DT.decide(valores)
-        self.save_data(action)
+        #print(valores,'------------------------->',action)
         eval('self.' + action + '()')
-
-    def save_data(self, action_name):
-        self.frame_count += 1
-        if self.frame_count % 5 != 0:
-            return
-
-        action_map = {
-            "accelerate": "w",
-            "rotLeft": "a",
-            "rotRight": "d",
-            "brake": "s"
-        }
-        key = action_map.get(action_name, None)
-        if key is None:
-            return
-
-        # Garante que apenas valores 0 ou 1 são registados
-        row = [1 if s[1] else 0 for s in self.sensors] + [key]
-
-        os.makedirs("data", exist_ok=True)
-        with open("data/dataset.csv", mode="a", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(row)
 
     def next_level(self, level):
         self.reset()
