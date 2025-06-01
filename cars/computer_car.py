@@ -57,3 +57,7 @@ class ComputerCar(AbstractCar):
         self.reset()
         self.vel = self.max_vel + (level - 1) * 0.02
         self.current_point = 0
+
+    def get_radar_distances(self):
+        # Override to return empty list for computer car
+        return []

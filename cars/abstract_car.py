@@ -1,7 +1,7 @@
 import math
 import numpy
 import pygame
-from utils.settings import WIDTH, HEIGHT, TRACK_MASK
+from utils.settings import CAR_SIZE, TRACK_BORDER_MASK, WIDTH, HEIGHT, TRACK_MASK
 from utils.draw_helpers import blit_rotate_center
 
 
@@ -17,20 +17,54 @@ class AbstractCar:
         self.angle = 0
         self.x, self.y = self.START_POS
         self.acceleration = 0.1
-
+    """
     def get_radar_distances(self):
+        # Nome de cada sensor para print
+        sensor_names = ['Esquerda', 'Meio-Esquerda', 'Meio-Direita', 'Direita', 'Trás']
+
         distances = []
-        for radar_angle in RADAR_ANGLES:
+        for i, radar_angle in enumerate(RADAR_ANGLES):
             angle = math.radians(self.angle + radar_angle)
-            for dist in range(0, MAX_RADAR_DISTANCE, 2):  
+            dist = 0
+            for dist in range(0, MAX_RADAR_DISTANCE, 2):
                 x = int(self.x + math.sin(angle) * dist)
                 y = int(self.y - math.cos(angle) * dist)
 
                 if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                    if TRACK_MASK.get_at((x, y)) == 0:  
+                    if TRACK_MASK.get_at((x, y)) == 0:
                         break
                 else:
-                    break  
+                    break
+
+            # Adiciona a distância medida
+            distances.append(dist)
+
+            # Print detalhado para ver as leituras
+            print(f"Sensor {sensor_names[i]} ({radar_angle}°): {dist} pixels")
+
+        return distances
+    """
+    def get_radar_distances(self):
+        distances = []
+        sensor_names = ['Esquerda', 'Meio-Esquerda', 'Meio-Direita', 'Direita', 'Trás']
+        x, y = int(self.x + CAR_SIZE[0]), int(self.y + CAR_SIZE[1])
+        for radar_angle in RADAR_ANGLES:
+            angle = math.radians(self.angle + radar_angle)
+            dx, dy = math.sin(angle), -math.cos(angle)
+
+            dist = 0
+            while dist < MAX_RADAR_DISTANCE:
+                px, py = int(x + dx * dist), int(y + dy * dist)
+
+                if 0 <= px < WIDTH and 0 <= py < HEIGHT:
+                    # Testa se encontrou um obstáculo (não-pista)
+                    if TRACK_BORDER_MASK.get_at((px, py)) != 0:
+                        break
+                else:
+                    break  # Fora dos limites
+
+                dist += 2
+            
             distances.append(dist)
         return distances
 

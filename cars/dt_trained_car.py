@@ -10,7 +10,7 @@ SENSOR_NAMES = ['s1', 's2', 's3', 's4', 's5']
 
 class DecisionTreeTrainedCar(AbstractCar):
     IMG = GREEN_CAR
-    START_POS = (150, 200)
+    START_POS = (180, 200)
 
     def __init__(self, max_vel, rotation_vel, model_path="model/classifier_with_initialPos_variation.joblib"):
         super().__init__(max_vel, rotation_vel)
@@ -29,7 +29,7 @@ class DecisionTreeTrainedCar(AbstractCar):
         df = pd.DataFrame([self.sensors], columns=SENSOR_NAMES)
         predicted_key = self.DT.predict(df)[0]
 
-        #print(f"Sensors: {self.sensors} → Action: {predicted_key}")
+        print(f"Sensors: {self.sensors} → Action: {predicted_key}")
 
         action_map = {
             "w": self.accelerate,
