@@ -38,18 +38,19 @@ import os
 from collections import Counter
 from imblearn.over_sampling import RandomOverSampler
 
-# Carrega os dados
+
 col_names = ['s1', 's2', 's3', 's4', 's5', 'action']
 df = pd.read_csv("data/dataset.csv", header=None, names=col_names)
 
-# Limpa dados inválidos
+
 df = df.dropna()
 df = df[df['action'].isin(['w', 'a', 'd', 's'])]
 df['action'] = df['action'].astype(str)
 
+df = df.drop_duplicates()
 print(df['action'].value_counts())
 
-# Define features e rótulos
+
 X = df[['s1', 's2', 's3', 's4', 's5']]
 y = df['action']
 
@@ -59,13 +60,14 @@ X_balanced, y_balanced = ros.fit_resample(X, y)
 
 # Divide treino/teste
 X_train, X_test, y_train, y_test = train_test_split(X_balanced, y_balanced, stratify=y_balanced, test_size=0.2, random_state=42)
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Treina classificador
 clf = DecisionTreeClassifier(max_depth=5)
 clf.fit(X_train, y_train)
 
 print("Antes do oversampling:", Counter(y))
-print("Depois do oversampling:", Counter(y_balanced))
+#print("Depois do oversampling:", Counter(y_balanced))
 
 # Avalia
 y_pred = clf.predict(X_test)
@@ -74,5 +76,5 @@ print("Accuracy:", acc)
 
 # Salva o modelo
 os.makedirs("model", exist_ok=True)
-joblib.dump(clf, "model/classifier.joblib")
+joblib.dump(clf, "model/classifier_with_initialPos_variation.joblib")
 

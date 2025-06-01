@@ -1,7 +1,9 @@
 import math
 import pygame
+
+from utils.path import PATH
 from .abstract_car import AbstractCar
-from settings import GREEN_CAR
+from utils.settings import GREEN_CAR
 
 class ComputerCar(AbstractCar):
     IMG = GREEN_CAR
@@ -9,7 +11,7 @@ class ComputerCar(AbstractCar):
 
     def __init__(self, max_vel, rotation_vel, path=[]):
         super().__init__(max_vel, rotation_vel)
-        self.path = path
+        self.path = PATH
         self.current_point = 0
         self.vel = self.max_vel
 
@@ -45,6 +47,11 @@ class ComputerCar(AbstractCar):
         self.calculate_angle()
         self.update_path_point()
         super().move()
+
+    def step(self):
+        self.vel = 0
+        #self.move()
+
 
     def next_level(self, level):
         self.reset()

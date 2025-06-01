@@ -1,9 +1,9 @@
 import math
 import numpy
 import pygame
-from settings import CAR_SIZE, WIDTH, HEIGHT, TRACK_MASK
+from utils.settings import WIDTH, HEIGHT, TRACK_MASK
 from utils.draw_helpers import blit_rotate_center
-import random
+
 
 RADAR_ANGLES = [90, 45, -45, -90, 180]
 MAX_RADAR_DISTANCE = 300
@@ -18,36 +18,19 @@ class AbstractCar:
         self.x, self.y = self.START_POS
         self.acceleration = 0.1
 
-    """def get_radar_distances(self):
-        distances = []
-        for radar_angle in RADAR_ANGLES:
-            angle = math.radians(self.angle + radar_angle)
-            for dist in range(0, MAX_RADAR_DISTANCE, 2): 
-                x = int(self.x + math.sin(angle) * dist)
-                y = int(self.y - math.cos(angle) * dist)
-
-                if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                    r, g, b, *_ = TRACK_MASK.get_at((x, y))
-                    if (r, g, b) != (255, 255, 255):  # Fora da pista → parar
-                        break
-                else:
-                    break
-            distances.append(dist)
-        return distances"""
-    
     def get_radar_distances(self):
         distances = []
         for radar_angle in RADAR_ANGLES:
             angle = math.radians(self.angle + radar_angle)
-            for dist in range(0, MAX_RADAR_DISTANCE, 2):  # passo de 2 pixels
+            for dist in range(0, MAX_RADAR_DISTANCE, 2):  
                 x = int(self.x + math.sin(angle) * dist)
                 y = int(self.y - math.cos(angle) * dist)
 
                 if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                    if TRACK_MASK.get_at((x, y)) == 0:  # encontrou relva (preto no mask)
+                    if TRACK_MASK.get_at((x, y)) == 0:  
                         break
                 else:
-                    break  # fora do ecrã
+                    break  
             distances.append(dist)
         return distances
 
@@ -84,11 +67,6 @@ class AbstractCar:
         return poi
 
     def reset(self):
-        #start_x, start_y = self.START_POS
-        #self.x = start_x + random.randint(-5, 5)
-        #self.y = start_y
-        #self.angle = random.randint(-10, 10) 
-        #self.vel = 0
         self.x, self.y = self.START_POS
         self.angle = 0
         self.vel = 0

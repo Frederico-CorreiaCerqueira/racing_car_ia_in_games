@@ -1,5 +1,5 @@
 import pygame
-from settings import TRACK_BORDER_MASK, FINISH_MASK, FINISH_POSITION, WIN, MAIN_FONT
+from utils.settings import TRACK_BORDER_MASK, FINISH_MASK, FINISH_POSITION, WIN, MAIN_FONT
 from utils.draw_helpers import blit_text_center
 
 def handle_collision(player_car, computer_car, game_info):
@@ -41,22 +41,3 @@ def handle_collision(player_car, computer_car, game_info):
     return False
 
 
-def move_player(player_car):
-    keys = pygame.key.get_pressed()
-    moved = False
-    if keys[pygame.K_a]:
-        player_car.rotate(left=True)
-        player_car.save_data("a")
-    if keys[pygame.K_d]:
-        player_car.rotate(right=True)
-        player_car.save_data("d")
-    if keys[pygame.K_w]:
-        moved = True
-        player_car.move_forward()
-        player_car.save_data("w")
-    if keys[pygame.K_s]:
-        moved = True
-        player_car.move_backwards()
-        player_car.save_data("s")
-    if not moved:
-        player_car.reduce_speed()

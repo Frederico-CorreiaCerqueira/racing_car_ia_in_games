@@ -4,7 +4,7 @@ import pygame
 
 from decision_tree.decision_tree import Action, Boolean
 from .abstract_car import AbstractCar
-from settings import (
+from utils.settings import (
     CAR_SIZE, GREEN_CAR, HEIGHT, TRACK_BORDER_MASK, WIDTH
 )
 

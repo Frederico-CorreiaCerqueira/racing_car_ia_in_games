@@ -1,6 +1,6 @@
 import pygame
 from utils.draw_helpers import scale_image
-from path import PATH
+from utils.path import PATH
 
 # Load and scale images
 GRASS = scale_image(pygame.image.load("assets/imgs/grass.jpg"), 2.5)
