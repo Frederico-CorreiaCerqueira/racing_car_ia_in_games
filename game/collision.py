@@ -6,8 +6,8 @@ def handle_collision(player_car, computer_car, game_info):
     if player_car.collide(TRACK_BORDER_MASK) is not None:
         player_car.bounce()
 
-    if computer_car.collide(TRACK_BORDER_MASK, 0, 0):
-                computer_car.bounce()
+  #  if computer_car.collide(TRACK_BORDER_MASK, 0, 0):
+   #     computer_car.bounce()
 
     if computer_car and computer_car.collide(FINISH_MASK, *FINISH_POSITION) is not None:
         blit_text_center(WIN, MAIN_FONT, "YOU LOST!")

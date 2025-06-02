@@ -13,9 +13,15 @@ def blit_text_center(win, font, text):
     render = font.render(text, 1, (255, 255, 255))
     win.blit(render, (win.get_width()/2 - render.get_width()/2, win.get_height()/2 - render.get_height()/2))
 
+from utils.path import PATH  # certificar-se de importar o PATH se ainda não estiver
+
 def draw(win, images, player_car, computer_car, game_info):
     for img, pos in images:
         win.blit(img, pos)
+
+    
+    #for point in PATH:
+      #  pygame.draw.circle(win, (255, 0, 0), point, 5)  # pontos vermelhos
 
     level_text = game_info.level
     time_text = game_info.get_level_time()
@@ -31,6 +37,7 @@ def draw(win, images, player_car, computer_car, game_info):
         computer_car.draw(win)
 
     pygame.display.update()
+
 
 def scale_image(img, factor):
     size = round(img.get_width() * factor), round(img.get_height() * factor)

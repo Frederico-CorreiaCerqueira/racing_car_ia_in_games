@@ -33,7 +33,7 @@ def delete_last_level_data():
 
 def main():
     pygame.init()
-
+    
     player_car = PlayerCar(4, 4)
     computer_car = DecisionTreeTrainedCar(4, 4) 
     #computer_car = DTSimpleCar(4,4) 
