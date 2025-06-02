@@ -2,6 +2,7 @@ import joblib
 import math
 import pygame
 import pandas as pd
+import csv
 
 from .abstract_car import AbstractCar
 from utils.settings import GREEN_CAR, TRACK, WIDTH, HEIGHT, TRACK_MASK, TRACK_BORDER_MASK
@@ -14,10 +15,11 @@ class DecisionTreeTrainedCar(AbstractCar):
     IMG = GREEN_CAR
     START_POS = (180, 200)
 
-    def __init__(self, max_vel, rotation_vel, model_path="model/classifier.joblib"):
+    def __init__(self, max_vel, rotation_vel, model_path="model/classifier.joblib", record=False):
         super().__init__(max_vel, rotation_vel)
         self.DT = joblib.load(model_path)
         self.sensors = []
+        self.record = record
 
     def step(self):
         self.sensors = self.get_radar_distances()
@@ -25,6 +27,7 @@ class DecisionTreeTrainedCar(AbstractCar):
 
         predicted_key = self.DT.predict(df)[0]
 
+        # Executa a ação prevista
         action_map = {
             "w": self.accelerate,
             "a": self.rotLeft,
@@ -36,6 +39,12 @@ class DecisionTreeTrainedCar(AbstractCar):
             action_map[predicted_key]()
         else:
             print("Ação inválida prevista:", predicted_key)
+
+        # Se estiver em modo de gravação, guarda os dados
+        if self.record:
+            with open("data/dataset.csv", "a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(self.sensors + [predicted_key])
 
     def draw_sensors(self, win):
         center_x = self.x + self.img.get_width() // 2
@@ -70,7 +79,7 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def draw(self, win):
         super().draw(win)
-      #  self.draw_sensors(win)
+        # self.draw_sensors(win)
 
     def next_level(self, level):
         self.reset()
@@ -87,5 +96,3 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def brake(self):
         self.move_backwards()
-
-
