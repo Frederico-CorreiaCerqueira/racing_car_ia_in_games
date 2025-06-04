@@ -154,7 +154,8 @@ def run_game_manual():
     player_car = PlayerCar(4, 4)
     computer_car = DecisionTreeTrainedCar(4, 4, record=False)
 
-    player_car.START_POS = (180, 200)
+
+    player_car.START_POS = (150, 200)
     player_car.x, player_car.y = (180, 200)
     player_car.angle = 0
 
@@ -162,7 +163,10 @@ def run_game_manual():
     computer_car.x, computer_car.y = (150, 200)
     computer_car.angle = 0
 
+    place_finish_behind(player_car)
+
     game_loop(player_car, computer_car)
+
 
 def run_game_ai():
     player_car = None
@@ -181,6 +185,6 @@ def run_game_from_middle():
     game_loop(player_car, computer_car)
 
 if __name__ == "__main__":
-    # run_game_manual()
-    run_game_ai()
+     run_game_manual()
+    #run_game_ai()
     # run_game_from_middle()
