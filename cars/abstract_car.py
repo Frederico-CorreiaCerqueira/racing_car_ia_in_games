@@ -110,7 +110,8 @@ class AbstractCar:
 
     def reset(self):
         self.x, self.y = self.START_POS
-        self.angle = 0
+        #self.angle = 0
+        self.angle = getattr(self, "start_angle", self.angle)
         self.vel = 0
 
     def draw(self, win):
