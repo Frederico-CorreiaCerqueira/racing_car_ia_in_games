@@ -1,6 +1,8 @@
 import time
 
 class GameInfo:
+    """Classe simples de controlo de estado e tempo de jogo, responsável 
+    por gerir o progresso entre níveis e calcular a duração de cada nível."""
     LEVELS = 10
 
     def __init__(self, level=1):

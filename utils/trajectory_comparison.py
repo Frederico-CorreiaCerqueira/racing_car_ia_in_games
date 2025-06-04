@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 
 def compare_trajectories(traj1, traj2):
     """
-    traj1 and traj2: list of (x, y) tuples
+    Função que compara duas trajetórias (listas de coordenadas x, y) e calcula o erro acumulado entre elas, 
+    mostrando também um gráfico com a evolução da diferença ao longo do tempo.
     """
+
     min_len = min(len(traj1), len(traj2))
     traj1 = traj1[:min_len]
     traj2 = traj2[:min_len]

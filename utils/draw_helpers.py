@@ -1,19 +1,18 @@
 import pygame
-from utils.path import PATH  # Usado para debug opcional do caminho da pista
 
-# Escala uma imagem pelo fator fornecido
 def scale_image(img, factor):
+    """    Redimensiona uma imagem pelo fator especificado."""
     size = round(img.get_width() * factor), round(img.get_height() * factor)
     return pygame.transform.scale(img, size)
 
-# Roda uma imagem em torno do centro da sua posição original
 def blit_rotate_center(win, image, top_left, angle):
+    """Desenha uma imagem rotacionada no centro de um ponto específico."""
     rotated_image = pygame.transform.rotate(image, angle)
     new_rect = rotated_image.get_rect(center=image.get_rect(topleft=top_left).center)
     win.blit(rotated_image, new_rect.topleft)
 
-# Mostra texto centrado no ecrã
 def blit_text_center(win, font, text):
+    """Desenha um texto centralizado na janela."""
     render = font.render(text, 1, (200, 200, 200))
     win.blit(
         render,
@@ -21,10 +20,10 @@ def blit_text_center(win, font, text):
          win.get_height() / 2 - render.get_height() / 2)
     )
 
-# Função principal para desenhar todos os elementos do jogo
 def draw(win, images, player_car, computer_car, game_info,
          finish_image=None, finish_pos=None, finish_angle=0):
-    
+    """Função principal para desenhar todos os elementos do jogo na janela."""
+
     # Desenha o fundo e camadas estáticas
     for img, pos in images:
         win.blit(img, pos)

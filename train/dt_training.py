@@ -1,36 +1,4 @@
-"""from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-import pandas as pd
-import joblib 
-import os
-
-# Carrega os dados
-col_names = ['s1', 's2', 's3', 's4', 's5', 'action']
-df = pd.read_csv("data/dataset.csv",header=None, names=col_names)
-print(df['action'].value_counts())
-X = df[['s1', 's2', 's3', 's4', 's5']]  # sensores
-y = df['action']                       # ações
-
-# Divide treino/teste
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=42)
-
-# Treina o classificador
-clf = DecisionTreeClassifier(max_depth=5)
-clf.fit(X_train, y_train)
-
-# Avalia
-y_pred = clf.predict(X_test)
-acc = accuracy_score(y_test, y_pred)
-print("Accuracy:", acc)
-
-# Salva o modelo
-os.makedirs("model", exist_ok=True)
-joblib.dump(clf, "model/classifier.joblib")"""
-
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, classification_report
 import pandas as pd
@@ -68,7 +36,8 @@ print("Depois do oversampling:", Counter(y_balanced))
 X_train, X_test, y_train, y_test = train_test_split(
     X_balanced, y_balanced, stratify=y_balanced, test_size=0.2, random_state=42)
 
-# === ESCOLHE O MODELO ===
+
+"""Modelos de Classificação utilizados, para comparação"""
 
 # MODELO 1: Random Forest
 clf = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42)
@@ -79,7 +48,6 @@ clf = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42)
 # MODELO 3: Decision Tree clássica (ajustada para melhor generalização)
 #clf = DecisionTreeClassifier(max_depth=10, min_samples_split=4, min_samples_leaf=5, random_state=42)
 
-# =========================
 
 clf.fit(X_train, y_train)
 

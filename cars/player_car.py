@@ -4,10 +4,34 @@ import os
 import csv
 
 from .abstract_car import MAX_RADAR_DISTANCE, RADAR_ANGLES, AbstractCar
-from utils.settings import RED_CAR, TRACK_MASK, TRACK_BORDER_MASK, TRACK, WIDTH, HEIGHT
+from utils.settings import RED_CAR, TRACK_BORDER_MASK, TRACK, WIDTH, HEIGHT
 
 
 class PlayerCar(AbstractCar):
+    """
+    Classe que representa um carro controlado manualmente pelo jogador.
+
+    Este carro serve como a principal fonte de recolha de dados para treino.
+    Regista automaticamente as leituras dos sensores (distâncias aos obstáculos em várias direções)
+    juntamente com a tecla pressionada pelo utilizador (ação realizada). Esses dados são armazenados
+    num ficheiro CSV e são usados para treinar classificadores.
+
+    O carro também simula comportamento físico, incluindo aceleração, travagem, rotação
+    e desaceleração gradual quando o jogador não pressiona nenhuma tecla.
+
+    Atributos principais:
+    - center_x / center_y: coordenadas do centro do carro, usadas para calcular as linhas dos sensores.
+    - frame_count: contador interno usado para controlar a frequência da gravação dos dados.
+
+    Métodos principais:
+    - move_player: lê o teclado e executa ações de acordo com as teclas pressionadas, chamando save_data.
+    - save_data: guarda os dados dos sensores e a ação correspondente a cada poucos frames.
+    - draw_radar_lines: desenha as linhas dos sensores no ecrã para visualização do alcance e detecção.
+    - draw: desenha o carro (e opcionalmente os sensores) na janela de jogo.
+    - reduce_speed / bounce: simulam comportamento físico ao desacelerar ou após colisões.
+    """
+
+
     IMG = RED_CAR
     START_POS = (180, 200)
 
@@ -94,7 +118,7 @@ class PlayerCar(AbstractCar):
             return
 
         distances = self.get_radar_distances()
-       # print(distances)
+
         row = distances + [action]
         os.makedirs("data", exist_ok=True)
         with open("data/dataset.csv", mode="a", newline="") as f:

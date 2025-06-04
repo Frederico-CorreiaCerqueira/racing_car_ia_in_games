@@ -1,15 +1,42 @@
 import math
 import numpy
 import pygame
-from utils.settings import CAR_SIZE, WIDTH, HEIGHT, TRACK_MASK, TRACK_BORDER_MASK
+from utils.settings import WIDTH, HEIGHT, TRACK_MASK, TRACK_BORDER_MASK
 from utils.draw_helpers import blit_rotate_center
-import random
 
 RADAR_ANGLES = [90, 45, 0, -45, -90]
 MAX_RADAR_DISTANCE = 300
 ORIGIN_OFFSET = 0  # distância do centro até ao para-choques (ajustável)
 
 class AbstractCar:
+    """
+    Classe abstrata que define o comportamento básico dos carros no jogo.
+
+    Esta classe serve como base para carros controlados manualmente ou por agentes automatizados.
+    Inclui funcionalidades para movimento, rotação com ruído (simulando imperfeições reais),
+    detecção de distâncias via sensores (radares), deteção de colisões com a pista e reinício
+    da posição. Pode ser estendida para implementar comportamento mais específico.
+
+    Atributos principais:
+    - max_vel: velocidade máxima permitida.
+    - vel: velocidade atual.
+    - rotation_vel: velocidade de rotação.
+    - angle: ângulo atual do carro.
+    - x, y: coordenadas atuais do carro no ecrã.
+    - acceleration: aceleração usada para mover o carro.
+
+    Métodos principais:
+    - move_forward / move_backwards: acelera ou trava o carro.
+    - rotate: gira o carro com ruído adicionado.
+    - move: aplica o movimento segundo o ângulo e velocidade.
+    - get_radar_distances: retorna distâncias medidas pelos sensores do carro.
+    - collide: verifica colisão com uma máscara (pista ou obstáculos).
+    - bounce: simula o efeito de bouncing ao colidir.
+    - reset: reinicia a posição e estado do carro.
+    - draw: desenha o carro na janela do jogo.
+"""
+
+
     def __init__(self, max_vel, rotation_vel):
         self.img = self.IMG
         self.max_vel = max_vel
@@ -18,34 +45,6 @@ class AbstractCar:
         self.angle = 0
         self.x, self.y = self.START_POS
         self.acceleration = 0.1
-
-    """
-    def get_radar_distances(self):
-        # Nome de cada sensor para print
-        sensor_names = ['Esquerda', 'Meio-Esquerda', 'Meio-Direita', 'Direita', 'Trás']
-
-        distances = []
-        for i, radar_angle in enumerate(RADAR_ANGLES):
-            angle = math.radians(self.angle + radar_angle)
-            dist = 0
-            for dist in range(0, MAX_RADAR_DISTANCE, 2):
-                x = int(self.x + math.sin(angle) * dist)
-                y = int(self.y - math.cos(angle) * dist)
-
-                if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-                    if TRACK_MASK.get_at((x, y)) == 0:
-                        break
-                else:
-                    break
-
-            # Adiciona a distância medida
-            distances.append(dist)
-
-            # Print detalhado para ver as leituras
-            print(f"Sensor {sensor_names[i]} ({radar_angle}°): {dist} pixels")
-
-        return distances
-    """
 
     def get_radar_distances(self):
         distances = []

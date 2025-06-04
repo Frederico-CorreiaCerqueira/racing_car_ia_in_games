@@ -23,6 +23,32 @@ north = Boolean("north?", leftb, left)
 decisionTreeSimple = north
 
 class DTSimpleCar(AbstractCar):
+    """
+    Classe que representa um carro controlado por uma Decision Tree simples.
+
+    Este carro utiliza a árvore de decisão fornecida pelo professor no laboratório,
+    com pequenas alterações para adaptar a lógica de decisão às leituras dos sensores
+    do veículo. A árvore decide entre acelerar, virar à esquerda/direita ou travar,
+    com base em obstáculos detetados à frente, atrás, e nos lados do carro.
+
+    Esta classe foi também utilizada como base para recolher dados em alguns dos testes, como
+    as leituras de sensores, que foram úteis para treinar o agente inteligente.
+
+    Atributos principais:
+    - SENSOR_POS: posições relativas dos sensores no corpo do carro.
+    - SENSOR_NAMES: nomes lógicos atribuídos a cada direção de sensor.
+    - DT: árvore de decisão usada para tomar ações com base nas leituras.
+
+    Métodos principais:
+    - step: executa um passo do carro, atualizando sensores, decidindo a ação e aplicando-a.
+    - update_sensors: atualiza as leituras dos sensores com base na posição atual.
+    - save_data: guarda leituras dos sensores e a ação tomada num ficheiro CSV para posterior treino.
+    - draw / draw_sensors: desenham o carro e os seus sensores no ecrã.
+    - next_level: ajusta a velocidade do carro para níveis de dificuldade mais elevados.
+
+    Ações disponíveis:
+    - rotLeft, rotRight, accelerate, brake - executam a ação correspondente e registam-na.
+    """
     IMG = GREEN_CAR
     START_POS = (150, 200)
     SENSOR_POS = [(0, -50), (-20, -30), (20, -30), (0, 40)]
@@ -107,7 +133,6 @@ class DTSimpleCar(AbstractCar):
             if 0 <= px < WIDTH and 0 <= py < HEIGHT:
                 pygame.draw.circle(win, (0, 0, 0), (px, py), 2)
 
-    
     # Ações
     def rotLeft(self):
         self.rotate(left=True)

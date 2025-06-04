@@ -5,13 +5,40 @@ import pandas as pd
 import csv
 
 from .abstract_car import AbstractCar
-from utils.settings import GREEN_CAR, TRACK, WIDTH, HEIGHT, TRACK_MASK, TRACK_BORDER_MASK
+from utils.settings import GREEN_CAR, WIDTH, HEIGHT, TRACK_MASK, TRACK_BORDER_MASK
 from .abstract_car import RADAR_ANGLES, MAX_RADAR_DISTANCE
 
 SENSOR_NAMES = ['s1', 's2', 's3', 's4', 's5']
 
 
 class DecisionTreeTrainedCar(AbstractCar):
+    """
+    Classe que representa um carro autónomo controlado por um modelo treinado.
+
+    Este carro utiliza um classificador treinado (carregado de um ficheiro `.joblib`) para prever
+    ações com base nas leituras dos sensores frontais. O modelo decide entre acelerar, travar e virar
+    à esquerda ou direita com base nas distâncias aos obstáculos captadas pelos sensores.
+
+    Foi o principal agente utilizado durante as simulações, e baseia-se num modelo treinado com
+    dados reais recolhidos, por outros carros. Além disso, a classe tem suporte para
+    continuação da recolha de dados, permitindo armazenar novas observações e previsões para
+    futuras melhorias do modelo.
+
+    Atributos:
+    - DT: o classificador Random Decision Tree carregado.
+    - sensors: lista das leituras atuais dos sensores.
+    - record: booleano que ativa a gravação de dados para ficheiro CSV.
+
+    Métodos principais:
+    - step: executa uma ação com base na previsão do modelo e (se ativado) grava os dados num CSV.
+    - draw_sensors: desenha visualmente os sensores.
+    - draw: desenha o carro na janela.
+    - next_level: reposiciona o carro e ajusta a velocidade para simular progressão de dificuldade.
+    - rotLeft / rotRight / accelerate / brake: executam as ações previstas pelo modelo.
+
+    Este agente é também capaz de gerar mais dados para continuar a treinar e afinar o modelo ao longo do tempo.
+    """
+
     IMG = GREEN_CAR
     START_POS = (180, 200)
 
@@ -79,7 +106,6 @@ class DecisionTreeTrainedCar(AbstractCar):
 
     def draw(self, win):
         super().draw(win)
-        # self.draw_sensors(win)
 
     def next_level(self, level):
         from main import set_random_spawn

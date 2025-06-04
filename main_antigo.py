@@ -2,8 +2,6 @@ import pygame
 import sys
 import random
 
-from cars.computer_car import ComputerCar
-from cars.dt_simple_car import DTSimpleCar
 from cars.dt_trained_car import DecisionTreeTrainedCar
 from cars.player_car import PlayerCar
 from utils.settings import *

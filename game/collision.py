@@ -2,14 +2,19 @@ import pygame
 from utils.settings import TRACK_BORDER_MASK, WIN, MAIN_FONT
 from utils.draw_helpers import blit_text_center
 
-# Função para verificar colisões do(s) carro(s)
+
 def handle_collision(player_car, computer_car, game_info, finish_mask, finish_pos,
                      set_spawn_fn=None, place_finish_fn=None):
+    """
+    Função para verificar colisões do(s) carro(s) com a pista, bordas e meta.
+    Atualiza o estado do jogo com base nas colisões detetadas.
+
+    """
     # Colisão com a borda
     if player_car and player_car.collide(TRACK_BORDER_MASK) is not None:
         player_car.bounce()
 
-    # Colisão do computador com a meta (vitória da IA)
+    # Colisão do computador com a meta
     if computer_car and computer_car.collide(finish_mask, *finish_pos) is not None:
         blit_text_center(WIN, MAIN_FONT, "YOU LOST!")
         pygame.display.update()
