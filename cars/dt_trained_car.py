@@ -82,6 +82,8 @@ class DecisionTreeTrainedCar(AbstractCar):
         # self.draw_sensors(win)
 
     def next_level(self, level):
+        from main import set_random_spawn
+        set_random_spawn(self)
         self.reset()
         self.vel = self.max_vel + (level - 1) * 0.02
 

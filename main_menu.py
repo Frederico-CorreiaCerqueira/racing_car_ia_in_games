@@ -14,9 +14,9 @@ BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 
 options = [
-    "1 - Play and Train",
+    "1 - Race and Train",
     "2 - See AI Car (trains too)",
-    "3 - Play from the middle"
+    "3 - Play from the middle and Train"
 ]
 
 def draw_menu(selected):
