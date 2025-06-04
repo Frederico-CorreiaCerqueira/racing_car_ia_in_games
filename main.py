@@ -156,11 +156,11 @@ def run_game_manual():
 
 
     player_car.START_POS = (150, 200)
-    player_car.x, player_car.y = (180, 200)
+    player_car.x, player_car.y = (150, 200)
     player_car.angle = 0
 
-    computer_car.START_POS = (150, 200)
-    computer_car.x, computer_car.y = (150, 200)
+    computer_car.START_POS = (180, 200)
+    computer_car.x, computer_car.y = (180, 200)
     computer_car.angle = 0
 
     place_finish_behind(player_car)
